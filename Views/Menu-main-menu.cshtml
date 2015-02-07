@@ -1,0 +1,25 @@
+﻿@{
+    var tag = Tag(Model, "ul");
+    tag.Attributes["class"] = "right";
+
+    var items = (IList<dynamic>)Enumerable.Cast<dynamic>(Model.Items);
+
+    foreach (var item in items)
+    {
+
+        if (!HasText(item.Text)) { continue; }
+
+
+        var subItems = (IList<dynamic>)Enumerable.Cast<dynamic>(item.Items);
+        if (subItems.Any())
+        {
+            item.Classes.Add("has-dropdown not-click");
+
+        }
+
+    }
+
+}
+@tag.StartElement
+    @DisplayChildren(Model)
+@tag.EndElement

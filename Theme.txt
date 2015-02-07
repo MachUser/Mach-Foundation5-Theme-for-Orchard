@@ -1,0 +1,6 @@
+Name: Mach.Foundation5.Theme
+Author: Mach Associates - Bruce Hodge
+Website: http://www.machassociates.com/foundation
+Description: This is a foundation 5.5 implemented for Orchard v1.8.1   Foundation is the best of class for mobile/responsive sites and this theme comes setup with a working set of menus etc.
+Version: 1.0
+# Tags: Responsive, Foundation, SASS

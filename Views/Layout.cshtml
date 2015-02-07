@@ -1,0 +1,229 @@
+﻿@using log4net.Util.TypeConverters
+@using Orchard.UI.Resources;
+@{
+    RegisterLink(new LinkEntry { Type = "image/x-icon", Rel = "shortcut icon", Href = Url.Content("~/modules/orchard.themes/Content/orchard.ico") });
+
+    var siteName = Convert.ToString(WorkContext.CurrentSite.SiteName);
+    
+}
+@functions {
+    // Foundation 4 uses a 12 column grid. This method calculates the number of columns available based on which zones are present. Implementing as a razor function because we can, could otherwise be a Func<string[], string, string> in the code block following.
+    string CalculateColumntCount(string[] zoneNames, string classNamePrefix, int defaultColumnsPerZone, bool isSelfIncludedInSet)
+    {
+        var zoneCounter = 0;
+        foreach (var name in zoneNames)
+        {
+            if (Model[name] != null)
+                zoneCounter++;
+        }
+
+        int availableColumns = 12;
+
+        if (!isSelfIncludedInSet)
+            availableColumns = 12 - (defaultColumnsPerZone * zoneCounter);
+
+        if (isSelfIncludedInSet && zoneCounter > 0)
+            availableColumns = 12 / zoneCounter;
+
+        return classNamePrefix + Convert.ToString(availableColumns);
+    }
+}
+@{
+    
+    // Add some meta/scripts and basic styling
+    SetMeta("viewport", "width=device-width, initial-scale=1.0");
+    Script.Include("foundation/modernizr.js").AtHead();
+    Style.Include("site.css", "site.min.css");
+    Script.Require("jQuery").AtHead();
+
+
+    // Calculate column counts
+    
+    var mainColumnClass = CalculateColumntCount(new [] { "AsideFirst", "AsideSecond" }, "medium-", 3, false); // for large-10, large-8 or large-12 if any of the aside zones are filled
+
+    var tripelClass = CalculateColumntCount(new [] { "TripelFirst", "TripelSecond", "TripelThird" }, "medium-", 4, true); // for large-4, large-6, etc. if any of the tripel zones are filled
+
+    var footerQuadClass = CalculateColumntCount(new[] { "FooterQuadFirst", "FooterQuadSecond", "FooterQuadThird", "FooterQuadFourth" }, "medium-", 3, true); // for small-3, small-4, etc. if any of the quad zones are filled
+
+    
+    // Add some standard components to the page
+
+   // WorkContext.Layout.Header.Add(New.Branding(), "5"); // Site name and link to the home page
+    WorkContext.Layout.Footer.Add(New.BadgeOfHonor(), "5"); // Powered by Orchard
+    WorkContext.Layout.Footer.Add(New.User(), "10"); // Login and dashboard links
+}
+
+@if (Model.Header != null || Model.Navigation != null)
+{
+    <div class="header">
+        @Display(Model.Header)
+        <nav class="top-bar row" data-topbar="">
+            <ul class="title-area">
+                <li class="name">@siteName</li>
+                <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
+            </ul>
+            @if (Model.Navigation != null)
+            {
+                <section class="top-bar-section">
+                    @Display(Model.Navigation)
+                </section>
+            }
+        </nav>
+
+    </div>
+
+
+}
+
+@if (Model.Featured != null)
+{
+    <div class="featured">
+        <section class="row" id="featured">
+            <div class="large-12 columns">
+                @Display(Model.Featured)
+            </div>
+        </section>
+    </div>
+}
+@if (Model.BeforeMain != null)
+{
+    <div>
+        <section class="row" id="before-main">
+            <div class="large-12 columns">
+                @Display(Model.BeforeMain)
+            </div>
+        </section>
+    </div>
+}
+<div id="layout-main-container" class="row">
+    @if (Model.AsideFirst != null)
+    {
+        <aside id="aside-first" class="medium-2 columns">
+            @Display(Model.AsideFirst)
+        </aside>
+    }
+    <div id="layout-content" class="@mainColumnClass columns">
+        @if (Model.BeforeContent != null)
+        {
+            <section id="before-content" class="row">
+                <div class="medium-12 columns panel">
+                    @Display(Model.BeforeContent)
+                </div>
+            </section>
+        }
+        @* the model content for the page is in the Content zone @ the default position (nothing, zero, zilch) *@
+        @if (Model.Content != null)
+        {
+            <section id="content" class="row">
+
+                <div class="medium-12 columns">
+
+                    @Display(Model.Content)
+                </div>
+
+            </section>
+        }
+        @if (Model.AfterContent != null)
+        {
+            <section id="after-content" class="row">
+                <div class="medium-12 columns panel">
+                    @Display(Model.AfterContent)
+                </div>
+            </section>
+        }
+    </div>
+    @if (Model.AsideSecond != null)
+    {
+        <aside id="aside-second" class="medium-3 columns">
+            <div>
+                @Display(Model.AsideSecond)
+            </div>
+        </aside>
+    }
+</div>
+
+@if (Model.AfterMain != null)
+{
+    <div>
+        <section class="row" id="after-main">
+            <div class="large-12 columns panel">
+                @Display(Model.AfterMain)
+            </div>
+        </section>
+    </div>
+}
+
+@if (Model.TripelFirst != null || Model.TripelSecond != null || Model.TripelThird != null)
+{
+
+    <div id="triple-section" class="row" data-equalizer>
+        @if (Model.TripelFirst != null)
+        {
+            <div class="@tripelClass columns panel tripelset" data-equalizer-watch>
+                @Display(Model.TripelFirst)
+            </div>
+        }
+        @if (Model.TripelSecond != null)
+        {
+            <div class="@tripelClass columns panel tripelset" data-equalizer-watch>
+                @Display(Model.TripelSecond)
+            </div>
+        }
+        @if (Model.TripelThird != null)
+        {
+            <div class="@tripelClass columns panel tripelset" data-equalizer-watch>
+                @Display(Model.TripelThird)
+            </div>
+        }
+    </div>
+
+}
+
+<div id="footer-container">
+    <footer class="row">
+        <div class="large-12 columns data" data-equalizer>
+            <div class="row">
+                @if (Model.FooterQuadFirst != null)
+                {
+                    <div class="@footerQuadClass columns panel quadset" data-equalizer-watch>
+                        @Display(Model.FooterQuadFirst)
+                    </div>
+                }
+                @if (Model.FooterQuadSecond != null)
+                {
+                    <div class="@footerQuadClass columns panel quadset" data-equalizer-watch>
+                        @Display(Model.FooterQuadSecond)
+                    </div>
+                }
+                @if (Model.FooterQuadThird != null)
+                {
+                    <div class="@footerQuadClass columns panel quadset" data-equalizer-watch>
+                        @Display(Model.FooterQuadThird)
+                    </div>
+                }
+                @if (Model.FooterQuadFourth != null)
+                {
+                    <div class="@footerQuadClass columns panel quadset" data-equalizer-watch>
+                        @Display(Model.FooterQuadFourth)
+                    </div>
+                }
+            </div>
+            @if (Model.Footer != null)
+            {
+                <div class="row">
+                    <div class="large-12 columns credits">
+                        @Display(Model.Footer)
+                    </div>
+                </div>
+            }
+        </div>
+    </footer>
+</div>
+
+@{
+    Script.Include("foundation/foundationBundle.js", "foundation/foundationBundle.min.js");
+}
+
+<script type="text/javascript">
+    $(document).foundation();
+</script>

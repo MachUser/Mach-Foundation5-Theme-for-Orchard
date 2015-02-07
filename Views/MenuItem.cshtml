@@ -1,0 +1,37 @@
+﻿@{
+    var items = Enumerable.Cast<dynamic>((System.Collections.IEnumerable)Model);
+}
+@{
+    if (!HasText(Model.Text))
+    {
+        @DisplayChildren(Model)
+    }
+    else
+    {
+        if (items.Any() && Model.Classes.Count == 0)
+        {
+            Model.Classes.Add("has-dropdown not-click");
+        }
+
+        Model.Metadata.Alternates.Clear();
+        Model.Metadata.Type = "MenuItemLink";
+
+        var renderedMenuItemLink = Display(Model);
+        if (HasText(renderedMenuItemLink))
+        {
+            var tag = Tag(Model, "li");
+            @tag.StartElement
+            @renderedMenuItemLink
+
+            if (items.Any())
+            {
+                <ul class="dropdown">
+                    @DisplayChildren(Model)
+                </ul>
+            }
+
+            @tag.EndElement
+        }
+
+    }
+}
